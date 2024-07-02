@@ -92,4 +92,5 @@ char* lexer_get_char_as_str(lexer_Type* lexer){
     char* str = calloc(2, sizeof(char));
     str[0] = lexer->c;
     str[1] = '\0';
+    return str;
 }
