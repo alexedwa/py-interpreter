@@ -7,7 +7,8 @@ typedef struct TOKEN_STRUCT{
         token_equals,
         token_string,
         token_leftbrack,
-        token_rightbrack
+        token_rightbrack,
+        token_eof
     }type;
 
     char* val;
