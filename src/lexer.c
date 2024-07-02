@@ -4,8 +4,8 @@
 #include <ctype.h>
 #include <stdio.h>
 
-lexer_Type* init_lexer(char* text){
-    lexer_Type* lexer = calloc(1, sizeof(struct LEXER_STRUCT));
+lexer_T* init_lexer(char* text){
+    lexer_T* lexer = calloc(1, sizeof(struct LEXER_STRUCT));
     lexer->text = text;
     lexer->i = 0;
     lexer->c = text[lexer->i];
@@ -14,20 +14,20 @@ lexer_Type* init_lexer(char* text){
 }
 
 
-void lexer_cont(lexer_Type* lexer){
+void lexer_cont(lexer_T* lexer){
     if (lexer->c != '\0' && lexer->i < strlen(lexer->text)){
         lexer->i++;
         lexer->c = lexer->text[lexer->i];
     }
 }
 
-void lexer_whitespace(lexer_Type* lexer){
+void lexer_whitespace(lexer_T* lexer){
     while(lexer->c == ' ' || lexer->c == '\n'){
         lexer_cont(lexer);
     }
 }
 
-token_Type* lexer_get_token(lexer_Type* lexer){
+token_T* lexer_get_token(lexer_T* lexer){
     while (lexer->c != '\0' && lexer->i < strlen(lexer->text)){
         if (lexer->c == ' ' || lexer->c == '\n'){
             lexer_whitespace(lexer);
@@ -51,7 +51,7 @@ token_Type* lexer_get_token(lexer_Type* lexer){
     return 0;
 }
 
-token_Type* lexer_get_id(lexer_Type* lexer){
+token_T* lexer_get_id(lexer_T* lexer){
     char* val = calloc(1, sizeof(char));
     val[0] = '\0';
 
@@ -65,7 +65,7 @@ token_Type* lexer_get_id(lexer_Type* lexer){
     return init_token(token_id, val);
 }
 
-token_Type* lexer_get_string(lexer_Type* lexer){
+token_T* lexer_get_string(lexer_T* lexer){
     lexer_cont(lexer);
 
     char* val = calloc(1, sizeof(char));
@@ -83,12 +83,12 @@ token_Type* lexer_get_string(lexer_Type* lexer){
     return init_token(token_string, val);
 }
 
-token_Type* lexer_cont_with_token(lexer_Type* lexer, token_Type* token){
+token_T* lexer_cont_with_token(lexer_T* lexer, token_T* token){
     lexer_cont(lexer);
     return token;
 }
 
-char* lexer_get_char_as_str(lexer_Type* lexer){
+char* lexer_get_char_as_str(lexer_T* lexer){
     char* str = calloc(2, sizeof(char));
     str[0] = lexer->c;
     str[1] = '\0';

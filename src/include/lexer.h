@@ -7,21 +7,21 @@ typedef struct LEXER_STRUCT{
     char c;
     unsigned int i;
     char* text;
-} lexer_Type;
+} lexer_T;
 
-lexer_Type* init_lexer(char* text);
+lexer_T* init_lexer(char* text);
 
-void lexer_cont(lexer_Type* lexer);
+void lexer_cont(lexer_T* lexer);
 
-void lexer_whitespace(lexer_Type* lexer);
+void lexer_whitespace(lexer_T* lexer);
 
-token_Type* lexer_get_token(lexer_Type* lexer);
+token_T* lexer_get_token(lexer_T* lexer);
 
-token_Type* lexer_get_id(lexer_Type* lexer);
+token_T* lexer_get_id(lexer_T* lexer);
 
-token_Type* lexer_get_string(lexer_Type* lexer);
+token_T* lexer_get_string(lexer_T* lexer);
 
-token_Type* lexer_cont_with_token(lexer_Type* lexer, token_Type* token);
+token_T* lexer_cont_with_token(lexer_T* lexer, token_T* token);
 
-char* lexer_get_char_as_str(lexer_Type* lexer);
+char* lexer_get_char_as_str(lexer_T* lexer);
 #endif
