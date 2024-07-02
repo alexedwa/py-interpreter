@@ -6,7 +6,8 @@ typedef struct AST_STRUCT{
         ast_variable,
         ast_variable_contents,
         ast_func_call,
-        ast_str
+        ast_str,
+        ast_statement_list
     } type;
     //ast_variable//
     char* ast_variable_name;
@@ -23,7 +24,11 @@ typedef struct AST_STRUCT{
     //ast_str//
     char* string_value;
 
-} AST_Type;
+    //ast_statement_list//
+    struct AST_STRUCT** ast_statement_list_value;
+    size_t ast_statement_list_size;
 
-AST_Type* init_ast(int type);
+} AST_T;
+
+AST_T* init_ast(int type);
 #endif
