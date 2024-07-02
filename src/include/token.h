@@ -12,8 +12,8 @@ typedef struct TOKEN_STRUCT{
     }type;
 
     char* val;
-} token_Type;
+} token_T;
 
-token_Type* init_token(int type, char* val);
+token_T* init_token(int type, char* val);
 
 #endif
