@@ -27,5 +27,7 @@ AST_T* parser_parse_func_call(parser_T* parser);
 
 AST_T* parser_parse_variable(parser_T* parser);
 
+AST_T* parser_parse_variable_contents(parser_T* parser);
+
 AST_T* parser_parse_str(parser_T* parser);
 #endif
