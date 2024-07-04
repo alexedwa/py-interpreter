@@ -22,14 +22,14 @@ void lexer_cont(lexer_T* lexer){
 }
 
 void lexer_whitespace(lexer_T* lexer){
-    while(lexer->c == ' ' || lexer->c == '\n'){
+    while(lexer->c == ' ' || lexer->c == 10){
         lexer_cont(lexer);
     }
 }
 
 token_T* lexer_get_token(lexer_T* lexer){
     while (lexer->c != '\0' && lexer->i < strlen(lexer->text)){
-        if (lexer->c == ' ' || lexer->c == '\n'){
+        if (lexer->c == ' '){
             lexer_whitespace(lexer);
         }
 
@@ -45,6 +45,7 @@ token_T* lexer_get_token(lexer_T* lexer){
             case '=': return lexer_cont_with_token(lexer, init_token(token_equals, lexer_get_char_as_str(lexer))); break;
             case '(': return lexer_cont_with_token(lexer, init_token(token_leftbrack, lexer_get_char_as_str(lexer))); break;
             case ')': return lexer_cont_with_token(lexer, init_token(token_rightbrack, lexer_get_char_as_str(lexer))); break;
+            case 10: return lexer_cont_with_token(lexer, init_token(token_eol, lexer_get_char_as_str(lexer))); break;
 
         }
     }
