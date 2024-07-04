@@ -8,6 +8,7 @@ typedef struct TOKEN_STRUCT{
         token_string,
         token_leftbrack,
         token_rightbrack,
+        token_eol,
         token_eof
     }type;
 
