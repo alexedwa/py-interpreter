@@ -22,7 +22,7 @@ void lexer_cont(lexer_T* lexer){
 }
 
 void lexer_whitespace(lexer_T* lexer){
-    while(lexer->c == ' ' || lexer->c == 10){
+    while(lexer->c == ' ' || lexer->c == '\n'){
         lexer_cont(lexer);
     }
 }
@@ -45,11 +45,11 @@ token_T* lexer_get_token(lexer_T* lexer){
             case '=': return lexer_cont_with_token(lexer, init_token(token_equals, lexer_get_char_as_str(lexer))); break;
             case '(': return lexer_cont_with_token(lexer, init_token(token_leftbrack, lexer_get_char_as_str(lexer))); break;
             case ')': return lexer_cont_with_token(lexer, init_token(token_rightbrack, lexer_get_char_as_str(lexer))); break;
-            case 10: return lexer_cont_with_token(lexer, init_token(token_eol, lexer_get_char_as_str(lexer))); break;
+            case '\n': return lexer_cont_with_token(lexer, init_token(token_eol, lexer_get_char_as_str(lexer))); break;
 
         }
     }
-    return 0;
+    return init_token(token_eof, "/0");
 }
 
 token_T* lexer_get_id(lexer_T* lexer){
