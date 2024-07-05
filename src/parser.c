@@ -22,7 +22,7 @@ AST_T* parser_parse(parser_T* parser){
 
 AST_T* parser_parse_statement(parser_T* parser){
     switch(parser->curr_token->type){
-        case token_id: parser_parse_variable(parser);
+        case token_id: return parser_parse_variable(parser);
     }
 }
     //runs through the file and creates a compounded statement list until an eol token is found
@@ -48,19 +48,12 @@ AST_T* parser_parse_expression(parser_T* parser){
 
 }
 
-AST_T* parser_parse_factor(parser_T* parser){
-
-}
-
-AST_T* parser_parse_term(parser_T* parser){
-
-}
-
 AST_T* parser_parse_func_call(parser_T* parser){
 
 }
 
 AST_T* parser_parse_variable_contents(parser_T* parser){
+
     char* variable_contents_name = parser->curr_token->val;
     parser_identify_token(parser, token_id);
     parser_identify_token(parser, token_equals);
@@ -90,4 +83,39 @@ AST_T* parser_parse_variable(parser_T* parser){
 AST_T* parser_parse_str(parser_T* parser){
 
 
+}
+
+AST_T* parser_parse_id(parser_T* parser){
+    parser_T* id_name = parser;
+    if(parser->lexer->i + 1 == '='){        //checking for variable defining or returning
+        if (parser_check_variable_array(parser) == 1){
+            parser_parse_variable(parser);
+        }
+        else{
+            parser_append_variable_array(parser);
+            parser_parse_variable_contents(parser);
+        }
+    }
+
+    else if(parser->lexer->i + 1 == '('){
+        return parser_parse_func_call(parser);
+    }
+}
+
+int parser_check_variable_array(parser_T* parser){
+    int arr_size = sizeof(variable_array) / sizeof(variable_array[0]);
+    for(int i = 0; i < arr_size; ++i){
+        if (parser->curr_token->val == variable_array[i]) return 1;
+    }
+    return 0;
+}
+
+void parser_append_variable_array(parser_T* parser){
+    if (variable_array == NULL)
+        variable_array = calloc(1, sizeof(char));
+    else{
+        int size = sizeof(variable_array)/sizeof(variable_array[0]);
+        variable_array = realloc(variable_array, size + 1);
+        variable_array[size] = parser->curr_token->val;
+    }
 }
