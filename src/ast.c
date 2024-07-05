@@ -16,7 +16,7 @@ AST_T* init_ast(int type){
     ast->ast_func_call_args_size = 0;
 
     //ast_str//
-    ast->string_value = (void*)0;
+    ast->ast_string_value = (void*)0;
 
     return ast;
 }

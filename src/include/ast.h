@@ -22,7 +22,7 @@ typedef struct AST_STRUCT{
     size_t ast_func_call_args_size;
 
     //ast_str//
-    char* string_value;
+    char* ast_string_value;
 
     //ast_statement_list//
     struct AST_STRUCT** ast_statement_list_value;
