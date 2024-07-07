@@ -18,7 +18,7 @@ typedef struct AST_STRUCT{
 
     //ast_func_call//
     char* ast_func_call_name;
-    struct AST_STRUCT* ast_func_call_args;
+    struct AST_STRUCT** ast_func_call_args;
     size_t ast_func_call_args_size;
 
     //ast_str//

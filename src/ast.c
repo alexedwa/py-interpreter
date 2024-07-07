@@ -18,5 +18,9 @@ AST_T* init_ast(int type){
     //ast_str//
     ast->ast_string_value = (void*)0;
 
+    //ast_statement_list//
+    ast->ast_statement_list_value = (void*)0;
+    ast->ast_statement_list_size = 0;
+
     return ast;
 }
