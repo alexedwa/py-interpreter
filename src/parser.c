@@ -8,15 +8,21 @@ parser_T* init_parser(lexer_T* lexer){
     parser_T* parser = calloc(1, sizeof(struct PARSER_STRUCT));
     parser->lexer = lexer;
     parser->curr_token = lexer_get_token(lexer);
+    parser->prev_token = parser->curr_token;
+
     return parser;
 }
 
     //used to identify if the token as the token given, else throws err
 void parser_identify_token(parser_T* parser, int token_type){
-    if (parser->curr_token->type == token_type)
+    if (parser->curr_token->type == token_type){
+        parser->prev_token = parser->curr_token;
         parser->curr_token = lexer_get_token(parser->lexer);
-    else
-        printf("ERROR: Unexpected token '%s', with type '%d'",parser->curr_token->val, parser->curr_token->type); exit(1);
+    }
+    else{
+        printf("ERROR: Unexpected token '%s', with type '%d'",parser->curr_token->val, parser->curr_token->type);
+        exit(1);
+    }
 }
 
 AST_T* parser_parse(parser_T* parser){
@@ -55,13 +61,30 @@ AST_T* parser_parse_expression(parser_T* parser){
 }
 
 AST_T* parser_parse_func_call(parser_T* parser){
+    AST_T* func_call = init_ast(ast_func_call);
+    func_call->ast_func_call_name = parser->prev_token->val;
+    parser_identify_token(parser, token_leftbrack);
 
+    func_call->ast_func_call_args = calloc(1, sizeof(struct AST_STRUCT*));
+
+    AST_T* expressions = parser_parse_statement(parser);
+    func_call->ast_func_call_args[0] = expressions;
+
+    while(parser->curr_token->type == token_comma){
+        parser_identify_token(parser, token_comma);
+
+        AST_T* expressions = parser_parse_statement(parser);
+        func_call->ast_func_call_args_size++;
+        func_call->ast_func_call_args = realloc(func_call->ast_func_call_args, func_call->ast_func_call_args_size * sizeof(struct AST_STRUCT*));
+        func_call->ast_func_call_args[func_call->ast_func_call_args_size - 1] = expressions;
+    }
+    parser_identify_token(parser, token_rightbrack);
+    return func_call;
 }
 
 AST_T* parser_parse_variable_contents(parser_T* parser){
 
-    char* variable_contents_name = parser->curr_token->val;
-    parser_identify_token(parser, token_id);
+    char* variable_contents_name = parser->prev_token->val;
     parser_identify_token(parser, token_equals);
     AST_T* variable_contents_value = parser_parse_expression(parser);
 
@@ -97,19 +120,21 @@ AST_T* parser_parse_str(parser_T* parser){
 }
 
 AST_T* parser_parse_id(parser_T* parser){
-    parser_T* id_name = parser;
-    if(parser->lexer->i + 1 == '='){        //checking for variable defining or returning
+    parser_T* prev_parser = parser;
+    parser_identify_token(parser, token_id);
+
+    if(parser->curr_token->type == token_equals){        //checking for variable defining or returning
         if (parser_check_variable_array(parser) == 1){
-            parser_parse_variable(parser);
+            parser_parse_variable(prev_parser);
         }
         else{
-            parser_append_variable_array(parser);
-            parser_parse_variable_contents(parser);
+            parser_append_variable_array(prev_parser);
+            parser_parse_variable_contents(prev_parser);
         }
     }
 
-    else if(parser->lexer->i + 1 == '('){
-        return parser_parse_func_call(parser);
+    else if(parser->curr_token->type == token_leftbrack){
+        return parser_parse_func_call(prev_parser);
     }
 }
 
