@@ -9,7 +9,8 @@ typedef struct TOKEN_STRUCT{
         token_leftbrack,
         token_rightbrack,
         token_eol,
-        token_eof
+        token_eof,
+        token_comma
     }type;
 
     char* val;
