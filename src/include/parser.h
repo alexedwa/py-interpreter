@@ -4,6 +4,7 @@
 #include "ast.h"
 typedef struct PARSER_STRUCT{
     lexer_T* lexer;
+    token_T* prev_token;
     token_T* curr_token;
 }parser_T;
 
