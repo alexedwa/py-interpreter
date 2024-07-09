@@ -7,7 +7,8 @@ typedef struct AST_STRUCT{
         ast_variable_contents,
         ast_func_call,
         ast_str,
-        ast_statement_list
+        ast_statement_list,
+        ast_end_of_operations
     } type;
     //ast_variable//
     char* ast_variable_name;
