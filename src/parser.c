@@ -33,6 +33,8 @@ AST_T* parser_parse_statement(parser_T* parser){
     switch(parser->curr_token->type){
         case token_id: return parser_parse_id(parser);
     }
+
+    return init_ast(ast_end_of_operations);
 }
     //runs through the file and creates a compounded statement list until an eol token is found
 AST_T* parser_parse_multiple_statements(parser_T* parser){
@@ -41,14 +43,17 @@ AST_T* parser_parse_multiple_statements(parser_T* parser){
 
     AST_T* statement = parser_parse_statement(parser);
     statement_list->ast_statement_list_value[0] = statement;
+    statement_list->ast_statement_list_size++;
 
     while(parser->curr_token->type == token_eol){
         parser_identify_token(parser, token_eol);
 
         AST_T* ast_statement = parser_parse_statement(parser);
-        statement_list->ast_statement_list_size++;
-        statement_list->ast_statement_list_value = realloc(statement_list->ast_statement_list_value, statement_list->ast_statement_list_size * sizeof(struct AST_STRUCT*));
-        statement_list->ast_statement_list_value[statement_list->ast_statement_list_size - 1] = ast_statement;
+        if (ast_statement){
+            statement_list->ast_statement_list_size++;
+            statement_list->ast_statement_list_value = realloc(statement_list->ast_statement_list_value, statement_list->ast_statement_list_size * sizeof(struct AST_STRUCT*));
+            statement_list->ast_statement_list_value[statement_list->ast_statement_list_size - 1] = ast_statement;
+        }
     }
 
     return statement_list;
@@ -57,7 +62,10 @@ AST_T* parser_parse_multiple_statements(parser_T* parser){
 AST_T* parser_parse_expression(parser_T* parser){
     switch (parser->curr_token->type){
         case token_string: return parser_parse_str(parser);
+        case token_id: return parser_parse_id(parser);
     }
+
+    return init_ast(ast_end_of_operations);
 }
 
 AST_T* parser_parse_func_call(parser_T* parser){
@@ -69,6 +77,7 @@ AST_T* parser_parse_func_call(parser_T* parser){
 
     AST_T* expressions = parser_parse_statement(parser);
     func_call->ast_func_call_args[0] = expressions;
+    func_call->ast_func_call_args_size++;
 
     while(parser->curr_token->type == token_comma){
         parser_identify_token(parser, token_comma);
