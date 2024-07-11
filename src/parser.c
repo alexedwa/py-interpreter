@@ -1,9 +1,6 @@
 #include "include/parser.h"
 #include <stdio.h>
 
-char *variable_array[100];
-int array_size = 0;
-
 parser_T* init_parser(lexer_T* lexer){
     parser_T* parser = calloc(1, sizeof(struct PARSER_STRUCT));
     parser->lexer = lexer;
@@ -26,29 +23,31 @@ void parser_identify_token(parser_T* parser, int token_type){
 }
 
 AST_T* parser_parse(parser_T* parser){
-    return parser_parse_multiple_statements(parser);
+    char** var_arr = calloc(1, sizeof(char*));
+    int arr_size = 0;
+    return parser_parse_multiple_statements(parser, var_arr, arr_size);
 }
 
-AST_T* parser_parse_statement(parser_T* parser){
+AST_T* parser_parse_statement(parser_T* parser, char** var_arr, int arr_size){
     switch(parser->curr_token->type){
-        case token_id: return parser_parse_id(parser);
+        case token_id: return parser_parse_id(parser, var_arr, arr_size);
     }
 
     return init_ast(ast_end_of_operations);
 }
     //runs through the file and creates a compounded statement list until an eol token is found
-AST_T* parser_parse_multiple_statements(parser_T* parser){
+AST_T* parser_parse_multiple_statements(parser_T* parser, char** var_arr, int arr_size){
     AST_T* statement_list = init_ast(ast_statement_list);
     statement_list->ast_statement_list_value = calloc(1, sizeof(struct AST_STRUCT*));
 
-    AST_T* statement = parser_parse_statement(parser);
+    AST_T* statement = parser_parse_statement(parser, var_arr, arr_size);
     statement_list->ast_statement_list_value[0] = statement;
     statement_list->ast_statement_list_size++;
 
     while(parser->curr_token->type == token_eol){
         parser_identify_token(parser, token_eol);
 
-        AST_T* ast_statement = parser_parse_statement(parser);
+        AST_T* ast_statement = parser_parse_statement(parser, var_arr, arr_size);
         if (ast_statement){
             statement_list->ast_statement_list_size++;
             statement_list->ast_statement_list_value = realloc(statement_list->ast_statement_list_value, statement_list->ast_statement_list_size * sizeof(struct AST_STRUCT*));
@@ -59,30 +58,35 @@ AST_T* parser_parse_multiple_statements(parser_T* parser){
     return statement_list;
 }
 
-AST_T* parser_parse_expression(parser_T* parser){
+AST_T* parser_parse_expression(parser_T* parser, char** var_arr, int arr_size){
     switch (parser->curr_token->type){
-        case token_string: return parser_parse_str(parser);
-        case token_id: return parser_parse_id(parser);
+        case token_string: return parser_parse_str(parser, var_arr, arr_size);
+        case token_id: return parser_parse_id(parser, var_arr, arr_size);
     }
 
     return init_ast(ast_end_of_operations);
 }
 
-AST_T* parser_parse_func_call(parser_T* parser){
+AST_T* parser_parse_func_call(parser_T* parser, char** var_arr, int arr_size){
     AST_T* func_call = init_ast(ast_func_call);
+
     func_call->ast_func_call_name = parser->prev_token->val;
     parser_identify_token(parser, token_leftbrack);
 
     func_call->ast_func_call_args = calloc(1, sizeof(struct AST_STRUCT*));
 
-    AST_T* expressions = parser_parse_statement(parser);
+    AST_T* expressions = parser_parse_statement(parser, var_arr, arr_size);
+
     func_call->ast_func_call_args[0] = expressions;
+
+
+
     func_call->ast_func_call_args_size++;
 
     while(parser->curr_token->type == token_comma){
         parser_identify_token(parser, token_comma);
 
-        AST_T* expressions = parser_parse_statement(parser);
+        AST_T* expressions = parser_parse_statement(parser, var_arr, arr_size);
         func_call->ast_func_call_args_size++;
         func_call->ast_func_call_args = realloc(func_call->ast_func_call_args, func_call->ast_func_call_args_size * sizeof(struct AST_STRUCT*));
         func_call->ast_func_call_args[func_call->ast_func_call_args_size - 1] = expressions;
@@ -91,11 +95,11 @@ AST_T* parser_parse_func_call(parser_T* parser){
     return func_call;
 }
 
-AST_T* parser_parse_variable_contents(parser_T* parser){
+AST_T* parser_parse_variable_contents(parser_T* parser, char** var_arr, int arr_size){
 
     char* variable_contents_name = parser->prev_token->val;
     parser_identify_token(parser, token_equals);
-    AST_T* variable_contents_value = parser_parse_expression(parser);
+    AST_T* variable_contents_value = parser_parse_expression(parser, var_arr, arr_size);
 
     AST_T* variable_contents = init_ast(ast_variable_contents);
 
@@ -105,12 +109,12 @@ AST_T* parser_parse_variable_contents(parser_T* parser){
     return variable_contents;
 }
 
-AST_T* parser_parse_variable(parser_T* parser){
+AST_T* parser_parse_variable(parser_T* parser, char** var_arr, int arr_size){
     char* token_value = parser->curr_token->val;
     parser_identify_token(parser, token_id);
 
     if (parser->curr_token->type == token_leftbrack){
-        return parser_parse_func_call(parser);
+        return parser_parse_func_call(parser, var_arr, arr_size);
     }
 
     AST_T* variable = init_ast(ast_variable);
@@ -119,7 +123,7 @@ AST_T* parser_parse_variable(parser_T* parser){
     return variable;
 }
 
-AST_T* parser_parse_str(parser_T* parser){
+AST_T* parser_parse_str(parser_T* parser, char** var_arr, int arr_size){
     AST_T* string = init_ast(ast_str);
     string->ast_string_value = parser->curr_token->val;
 
@@ -128,34 +132,33 @@ AST_T* parser_parse_str(parser_T* parser){
     return string;
 }
 
-AST_T* parser_parse_id(parser_T* parser){
+AST_T* parser_parse_id(parser_T* parser, char** var_arr, int arr_size){
     parser_T* prev_parser = parser;
     parser_identify_token(parser, token_id);
 
     if(parser->curr_token->type == token_equals){        //checking for variable defining or returning
-        if (parser_check_variable_array(parser) == 1){
-            parser_parse_variable(prev_parser);
+        if (parser_check_variable_array(parser, var_arr, arr_size) == 1){
+            parser_parse_variable(prev_parser, var_arr, arr_size);
         }
         else{
-            parser_append_variable_array(prev_parser);
-            parser_parse_variable_contents(prev_parser);
+            parser_append_variable_array(prev_parser, var_arr, arr_size);
+            parser_parse_variable_contents(prev_parser, var_arr, arr_size);
         }
     }
 
     else if(parser->curr_token->type == token_leftbrack){
-        return parser_parse_func_call(prev_parser);
+        return parser_parse_func_call(prev_parser, var_arr, arr_size);
     }
 }
 
-int parser_check_variable_array(parser_T* parser){
-    int arr_size = sizeof(variable_array) / sizeof(variable_array[0]);
+int parser_check_variable_array(parser_T* parser, char** var_arr, int arr_size){
     for(int i = 0; i < arr_size; ++i){
-        if (parser->curr_token->val == variable_array[i]) return 1;
+        if (parser->curr_token->val == var_arr[i]) return 1;
     }
     return 0;
 }
 
-void parser_append_variable_array(parser_T* parser){
-    variable_array[array_size] = parser->curr_token->val;
-    array_size++;
+void parser_append_variable_array(parser_T* parser, char** var_arr, int arr_size){
+    var_arr = realloc(var_arr, arr_size * sizeof(char*));
+    arr_size++;
 }

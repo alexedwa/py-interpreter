@@ -14,23 +14,23 @@ void parser_identify_token(parser_T* parser, int token_type);
 
 AST_T* parser_parse(parser_T* parser);
 
-AST_T* parser_parse_statement(parser_T* parser);
+AST_T* parser_parse_statement(parser_T* parser, char** var_arr, int arr_size);
 
-AST_T* parser_parse_multiple_statements(parser_T* parser);
+AST_T* parser_parse_multiple_statements(parser_T* parser, char** var_arr, int arr_size);
 
-AST_T* parser_parse_expression(parser_T* parser);
+AST_T* parser_parse_expression(parser_T* parser, char** var_arr, int arr_size);
 
-AST_T* parser_parse_func_call(parser_T* parser);
+AST_T* parser_parse_func_call(parser_T* parser, char** var_arr, int arr_size);
 
-AST_T* parser_parse_variable(parser_T* parser);
+AST_T* parser_parse_variable(parser_T* parser, char** var_arr, int arr_size);
 
-AST_T* parser_parse_variable_contents(parser_T* parser);
+AST_T* parser_parse_variable_contents(parser_T* parser, char** var_arr, int arr_size);
 
-AST_T* parser_parse_str(parser_T* parser);
+AST_T* parser_parse_str(parser_T* parser, char** var_arr, int arr_size);
 
-AST_T* parser_parse_id(parser_T* parser);
+AST_T* parser_parse_id(parser_T* parser, char** var_arr, int arr_size);
 
-int parser_check_variable_array(parser_T* parser);
+int parser_check_variable_array(parser_T* parser, char** var_arr, int arr_size);
 
-void parser_append_variable_array(parser_T* parser);
+void parser_append_variable_array(parser_T* parser, char** var_arr, int arr_size);
 #endif
