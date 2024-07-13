@@ -97,10 +97,8 @@ static AST_T* builtin_func_print(AST_T** args, int args_size, visitor_T* visitor
 {
     for (int i = 0; i < args_size; i++)
     {
-        args = calloc(1, sizeof(struct AST_STRUCT**));
-        printf("%d\n", args[i]->type);
         AST_T* visited_ast = visitor_visit(args[i], visitor);
-
+        printf("type: %s\n", visited_ast->ast_string_value);
         switch (visited_ast->type)
         {
             case ast_str: printf("%s\n", visited_ast->ast_string_value); break;
@@ -108,5 +106,6 @@ static AST_T* builtin_func_print(AST_T** args, int args_size, visitor_T* visitor
         }
     }
 
+    printf("%p\n", args[0]);
     return init_ast(ast_end_of_operations);
 }
