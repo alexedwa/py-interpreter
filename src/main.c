@@ -7,7 +7,7 @@
 
 int main(int argc, char* argv[]){
 	if (argc < 2){
-		printf("Write: ./py-interpreter.out <filename>\n");
+		printf("Write: ./py-interpreter.out <filename.py>\n");
 		exit(1);
 	}
 	else{
